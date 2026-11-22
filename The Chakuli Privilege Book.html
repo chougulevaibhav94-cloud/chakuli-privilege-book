@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f7e9e6">
+<title>The Chakuli Privilege Book ♡</title>
+<style>
+  :root {
+    --ink: #573743;
+    --muted: #98727d;
+    --rose: #b45d75;
+    --rose-dark: #96465c;
+    --paper: #fffaf7;
+    --blush: #f7e9e6;
+    --gold: #b58b52;
+    --border: #ead4d3;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    font-family: Georgia, "Times New Roman", serif;
+    background: radial-gradient(circle at 10% 5%, #fff 0, transparent 28%),
+                linear-gradient(135deg, #f7e9e6, #f4e8ed 55%, #f8efdf);
+    overflow-x: hidden;
+  }
+
+  button, input {
+    font: inherit;
+  }
+
+  /* ==================== PASSCODE LOCK SCREEN ==================== */
+  .lock-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: radial-gradient(circle at 15% 10%, #fff 0, transparent 35%),
+                linear-gradient(135deg, #f7e9e6, #f4e8ed 55%, #f8efdf);
+    transition: opacity 0.55s ease, visibility 0.55s ease, transform 0.55s ease;
+  }
+
+  .lock-screen.unlocked {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.03);
+    pointer-events: none;
+  }
+
+  .lock-card {
+    position: relative;
+    width: min(100%, 400px);
+    padding: 40px 26px 34px;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    background: rgba(255, 250, 247, 0.94);
+    box-shadow: 0 22px 60px rgba(117, 67, 82, 0.14);
+    overflow: hidden;
+  }
+
+  .lock-card::before,
+  .lock-card::after {
+    content: "✿";
+    position: absolute;
+    color: #e8c5c8;
+    font-size: 44px;
+    opacity: 0.65;
+    pointer-events: none;
+  }
+
+  .lock-card::before { top: 10px; left: 16px; }
+  .lock-card::after { bottom: 6px; right: 16px; }
+
+  .lock-eyebrow {
+    font: 600 10px Arial, sans-serif;
+    letter-spacing: 2.6px;
+    color: var(--rose);
+    text-transform: uppercase;
+  }
+
+  .lock-title {
+    font-size: 31px;
+    line-height: 1.06;
+    letter-spacing: -1px;
+    margin: 14px 0 8px;
+    color: #704353;
+    font-weight: normal;
+  }
+
+  .lock-sub {
+    font-style: italic;
+    color: #9a6a78;
+    font-size: 15px;
+    margin: 0 0 22px;
+  }
+
+  .pin-dots {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 0 auto 10px;
+  }
+
+  .pin-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid #cfa3ab;
+    background: #fff;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .pin-dot.filled {
+    background: var(--rose);
+    border-color: var(--rose);
+    transform: scale(1.18);
+    box-shadow: 0 3px 10px rgba(180, 93, 117, 0.35);
+  }
+
+  .pin-dot.error {
+    background: #d9534f;
+    border-color: #d9534f;
+  }
+
+  .lock-msg {
+    min-height: 20px;
+    font: 600 11px Arial, sans-serif;
+    letter-spacing: 0.8px;
+    color: #b45d75;
+    margin-bottom: 18px;
+  }
+
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 260px;
+    margin: 0 auto;
+  }
+
+  .key-btn {
+    height: 54px;
+    border-radius: 16px;
+    border: 1px solid #ead4d3;
+    background: #fffaf7;
+    color: #6c414f;
+    font: 600 19px Georgia, serif;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 4px 12px rgba(117, 67, 82, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+
+  .key-btn:hover {
+    background: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(117, 67, 82, 0.1);
+  }
+
+  .key-btn:active {
+    transform: scale(0.95);
+    background: #f7e9e6;
+  }
+
+  .key-btn.action {
+    font: 600 12px Arial, sans-serif;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-9px); }
+    40% { transform: translateX(9px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+
+  .shake {
+    animation: shake 0.38s ease;
+  }
+
+  /* ==================== MAIN COUPON BOOK SHELL ==================== */
+  .shell {
+    width: min(100% - 32px, 760px);
+    margin: 0 auto;
+    padding: 20px 0 54px;
+  }
+
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    gap: 10px;
+  }
+
+  .sync-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 99px;
+    background: rgba(255, 250, 247, 0.85);
+    border: 1px solid #ead4d3;
+    font: 600 10px Arial, sans-serif;
+    letter-spacing: 1px;
+    color: #896c75;
+    text-transform: uppercase;
+  }
+
+  .sync-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #d8a35d;
+    transition: background 0.3s ease;
+  }
+
+  .sync-pill.live .sync-dot {
+    background: #5ca679;
+    box-shadow: 0 0 8px rgba(92, 166, 121, 0.6);
+  }
+
+  .sync-pill.error .sync-dot {
+    background: #c95b63;
+  }
+
+  .lock-toggle {
+    border: 1px solid #e2c5c6;
+    background: rgba(255, 250, 247, 0.85);
+    color: #875966;
+    border-radius: 99px;
+    padding: 6px 13px;
+    font: 600 10px Arial, sans-serif;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .lock-toggle:hover {
+    background: #fff;
+    color: var(--rose);
+  }
+
+  .cover {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: 45px 24px 38px;
+    border: 1px solid #ead4d3;
+    border-radius: 24px;
+    background: rgba(255, 250, 247, 0.88);
+    box-shadow: 0 18px 50px #75435218;
+  }
+
+  .cover::before,
+  .cover::after {
+    content: "✿";
+    position: absolute;
+    color: #e8c5c8;
+    font-size: 54px;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  .cover::before { top: 12px; left: 18px; }
+  .cover::after { bottom: 7px; right: 20px; }
+
+  .eyebrow {
+    font: 600 10px Arial, sans-serif;
+    letter-spacing: 2.8px;
+    color: var(--rose);
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-size: clamp(36px, 8vw, 62px);
+    line-height: 0.98;
+    letter-spacing: -2px;
+    margin: 18px 0 12px;
+    color: #704353;
+    font-weight: normal;
+  }
+
+  .subtitle {
+    font-style: italic;
+    color: #9a6a78;
+    font-size: 17px;
+  }
+
+  .heart {
+    font-size: 26px;
+    color: var(--rose);
+    margin: 15px 0;
+  }
+
+  .issued {
+    font: 12px Arial, sans-serif;
+    letter-spacing: 1px;
+    color: #916b75;
+    margin-top: 22px;
+  }
+
+  .intro {
+    max-width: 460px;
+    margin: 26px auto 0;
+    text-align: center;
+    color: #80636b;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin: 25px 2px 13px;
+    font: 12px Arial, sans-serif;
+    color: #896c75;
+  }
+
+  .progress {
+    height: 5px;
+    background: #ead6d8;
+    border-radius: 99px;
+    overflow: hidden;
+    margin: 0 2px 20px;
+  }
+
+  .progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #b45d75, #d7a8a3);
+    transition: width 0.35s ease;
+  }
+
+  /* ==================== COUPON CARD ==================== */
+  .card {
+    position: relative;
+    min-height: 335px;
+    padding: 36px 26px 28px;
+    border-radius: 22px;
+    background: var(--paper);
+    border: 1px solid #ead8d4;
+    box-shadow: 0 15px 40px #75435217;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: background 0.3s ease;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 11px;
+    border: 1px dashed #e5c9c8;
+    border-radius: 15px;
+    pointer-events: none;
+  }
+
+  .card-top {
+    position: absolute;
+    top: 26px;
+    left: 0;
+    right: 0;
+    font: 600 10px Arial, sans-serif;
+    letter-spacing: 2px;
+    color: #b47b83;
+  }
+
+  .emoji {
+    font-size: 52px;
+    margin: 14px 0 10px;
+    transition: transform 0.25s ease;
+  }
+
+  .card h2 {
+    font-size: clamp(27px, 6vw, 38px);
+    font-weight: normal;
+    margin: 4px 0 12px;
+    color: #704353;
+  }
+
+  .desc {
+    max-width: 440px;
+    color: #80666b;
+    font-size: 17px;
+    line-height: 1.55;
+    margin: 0 auto;
+  }
+
+  .stamp {
+    margin-top: 24px;
+    border: 1px solid #d9b6b8;
+    border-radius: 99px;
+    padding: 8px 17px;
+    color: #a76d78;
+    font: 600 9px Arial, sans-serif;
+    letter-spacing: 1.5px;
+  }
+
+  .redeemed-meta {
+    margin-top: 16px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: rgba(255, 250, 247, 0.92);
+    border: 1px solid #e5c8c7;
+    max-width: 390px;
+    z-index: 2;
+  }
+
+  .redeemed-date {
+    font: 600 10px Arial, sans-serif;
+    letter-spacing: 1px;
+    color: var(--rose);
+    text-transform: uppercase;
+  }
+
+  .redeemed-note-text {
+    font-style: italic;
+    font-size: 14px;
+    color: #6d4753;
+    margin-top: 4px;
+    line-height: 1.45;
+  }
+
+  .card.redeemed {
+    background: #f7f0ed;
+  }
+
+  .card.redeemed::after {
+    content: "REDEEMED";
+    position: absolute;
+    top: 38%;
+    transform: rotate(-16deg);
+    border: 3px double #b45d75;
+    color: #b45d75;
+    padding: 8px 20px;
+    font: bold 24px Arial, sans-serif;
+    letter-spacing: 3px;
+    background: #fffaf0e6;
+    box-shadow: 0 6px 20px rgba(180, 93, 117, 0.14);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .card.redeemed .stamp {
+    display: none;
+  }
+
+  /* ==================== CONTROLS & NOTE COMPOSER ==================== */
+  .controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 18px 0 9px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    border: 1px solid #d9b9b9;
+    background: #fffaf7;
+    color: #754653;
+    border-radius: 99px;
+    padding: 12px 18px;
+    cursor: pointer;
+    transition: 0.2s;
+    font: 600 12px Arial, sans-serif;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px #75435218;
+  }
+
+  .btn.primary {
+    background: #a9556e;
+    color: white;
+    border-color: #a9556e;
+  }
+
+  .btn.primary:hover:not(:disabled) {
+    background: var(--rose-dark);
+  }
+
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .counter {
+    font: 12px Arial, sans-serif;
+    color: #98727d;
+    min-width: 66px;
+    text-align: center;
+  }
+
+  .redeem-drawer {
+    max-width: 460px;
+    margin: 12px auto 4px;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: rgba(255, 250, 247, 0.95);
+    border: 1px solid #e4c6c6;
+    box-shadow: 0 10px 28px rgba(117, 67, 82, 0.08);
+    text-align: center;
+  }
+
+  .redeem-drawer label {
+    display: block;
+    font: 600 10px Arial, sans-serif;
+    letter-spacing: 1.5px;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .redeem-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid #dec0c0;
+    background: #fff;
+    color: var(--ink);
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 12px;
+  }
+
+  .redeem-input:focus {
+    border-color: var(--rose);
+    box-shadow: 0 0 0 3px rgba(180, 93, 117, 0.12);
+  }
+
+  .drawer-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* ==================== COUPON GRID & NOTE ==================== */
+  .grid-title {
+    text-align: center;
+    margin: 38px 0 14px;
+    font-style: italic;
+    font-size: 23px;
+    color: #754653;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+  }
+
+  .tile {
+    position: relative;
+    border: 1px solid #ead4d3;
+    background: #fff9f6;
+    border-radius: 13px;
+    padding: 12px 5px;
+    min-height: 83px;
+    color: #76515d;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+
+  .tile:hover {
+    transform: translateY(-2px);
+    background: #fff;
+  }
+
+  .tile span {
+    display: block;
+    font-size: 22px;
+    margin-bottom: 5px;
+  }
+
+  .tile small {
+    font: 600 9px/1.3 Arial, sans-serif;
+    letter-spacing: 0.4px;
+    display: block;
+  }
+
+  .tile.active {
+    outline: 2px solid #b45d75;
+    background: #fff;
+  }
+
+  .tile.used {
+    opacity: 0.58;
+    background: #f0e6e3;
+  }
+
+  .tile.used::after {
+    content: "✓";
+    position: absolute;
+    top: 5px;
+    right: 7px;
+    font: bold 10px Arial, sans-serif;
+    color: var(--rose);
+  }
+
+  .note {
+    margin: 36px 0 0;
+    padding: 26px 22px;
+    border-radius: 20px;
+    background: #fff9f6;
+    border: 1px solid #ead4d3;
+    text-align: center;
+  }
+
+  .note h2 {
+    font-size: 27px;
+    font-weight: normal;
+    margin: 0 0 15px;
+    color: #754653;
+  }
+
+  .note p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #80636b;
+    margin: 10px auto;
+    max-width: 520px;
+  }
+
+  .signature {
+    font-style: italic;
+    color: #9d6274 !important;
+    font-size: 19px !important;
+    margin-top: 18px !important;
+  }
+
+  .rules {
+    font: 11px/1.7 Arial, sans-serif;
+    color: #a18489;
+    text-align: center;
+    margin: 22px auto 0;
+    max-width: 500px;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 24px;
+    color: #b28b91;
+    font-size: 12px;
+  }
+
+  /* ==================== HEART BURST PARTICLES ==================== */
+  .burst-heart {
+    position: fixed;
+    pointer-events: none;
+    z-index: 200;
+    font-size: 20px;
+    color: var(--rose);
+    animation: floatHeart 1.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes floatHeart {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) scale(0.6) rotate(0deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--tx), var(--ty)) scale(1.3) rotate(var(--rot));
+    }
+  }
+
+  @media (max-width: 520px) {
+    .shell {
+      width: min(100% - 22px, 760px);
+      padding-top: 14px;
+    }
+    .cover {
+      padding: 38px 17px 32px;
+    }
+    .card {
+      min-height: 310px;
+      padding: 34px 18px 24px;
+    }
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+    .tile {
+      min-height: 77px;
+    }
+    .btn {
+      padding: 11px 14px;
+    }
+    .desc {
+      font-size: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ==================== PASSCODE LOCK OVERLAY ==================== -->
+  <div class="lock-screen" id="lockScreen" role="dialog" aria-modal="true" aria-labelledby="lockHeading">
+    <div class="lock-card" id="lockCard">
+      <div class="lock-eyebrow">Private Edition · For Two</div>
+      <div class="heart" style="margin: 12px 0 4px;">♡</div>
+      <h2 class="lock-title" id="lockHeading">The Chakuli<br>Privilege Book</h2>
+      <p class="lock-sub">Enter our secret 4-digit passcode</p>
+
+      <div class="pin-dots" id="pinDots" aria-label="Passcode entry">
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+        <span class="pin-dot"></span>
+      </div>
+      <div class="lock-msg" id="lockMsg"></div>
+
+      <div class="keypad" id="keypad">
+        <button type="button" class="key-btn" data-key="1">1</button>
+        <button type="button" class="key-btn" data-key="2">2</button>
+        <button type="button" class="key-btn" data-key="3">3</button>
+        <button type="button" class="key-btn" data-key="4">4</button>
+        <button type="button" class="key-btn" data-key="5">5</button>
+        <button type="button" class="key-btn" data-key="6">6</button>
+        <button type="button" class="key-btn" data-key="7">7</button>
+        <button type="button" class="key-btn" data-key="8">8</button>
+        <button type="button" class="key-btn" data-key="9">9</button>
+        <button type="button" class="key-btn action" data-action="clear">CLEAR</button>
+        <button type="button" class="key-btn" data-key="0">0</button>
+        <button type="button" class="key-btn action" data-action="back">⌫</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN COUPON BOOK ==================== -->
+  <main class="shell" id="mainShell">
+    <div class="top-actions">
+      <div class="sync-pill" id="syncPill" title="Shared live status between both of you">
+        <span class="sync-dot"></span>
+        <span id="syncText">Connecting...</span>
+      </div>
+      <button type="button" class="lock-toggle" id="lockBtn" title="Lock book">🔒 Lock</button>
+    </div>
+
+    <section class="cover">
+      <div class="eyebrow">A special edition · made just for you</div>
+      <div class="heart">♡</div>
+      <h1>THE CHAKULI<br>PRIVILEGE BOOK</h1>
+      <div class="subtitle">20 little coupons. Countless little memories.</div>
+      <div class="issued">ISSUED EXCLUSIVELY TO CHAKULI</div>
+      <p class="intro">A tiny collection of dates, treats, hugs and questionable privileges. Pick a coupon whenever you feel like making a little memory together.</p>
+    </section>
+
+    <div class="toolbar">
+      <span>YOUR COUPON COLLECTION</span>
+      <span id="redeemedCount">0 / 20 redeemed</span>
+    </div>
+    <div class="progress"><span id="progressBar"></span></div>
+
+    <section class="card" id="couponCard" aria-live="polite">
+      <div class="card-top" id="number">COUPON 01 · FOOD PRIVILEGES</div>
+      <div class="emoji" id="emoji">🍕</div>
+      <h2 id="title">Food Is On Me</h2>
+      <p class="desc" id="description">You choose the food. I pay. No debating the menu for 45 minutes.</p>
+      <div class="stamp" id="stamp">ONE-TIME REDEMPTION · VALID ANYTIME</div>
+      <div class="redeemed-meta" id="redeemedMeta" hidden>
+        <div class="redeemed-date" id="redeemedDate"></div>
+        <div class="redeemed-note-text" id="redeemedNoteText"></div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <button class="btn" id="prev" type="button">← Previous</button>
+      <span class="counter" id="counter">01 / 20</span>
+      <button class="btn" id="next" type="button">Next →</button>
+    </div>
+
+    <div class="controls">
+      <button class="btn primary" id="redeemBtn" type="button">♡ Redeem this coupon</button>
+      <button class="btn" id="undoBtn" type="button" hidden>Undo redemption</button>
+    </div>
+
+    <!-- Optional sweet note composer before confirming redemption -->
+    <div class="redeem-drawer" id="redeemDrawer" hidden>
+      <label for="wishInput">Add a little wish or date note (optional)</label>
+      <input
+        type="text"
+        id="wishInput"
+        class="redeem-input"
+        maxlength="110"
+        placeholder="e.g. Tonight for dinner! or Craving chocolate fudge..."
+      />
+      <div class="drawer-actions">
+        <button type="button" class="btn primary" id="confirmRedeemBtn">♡ Confirm & Stamp</button>
+        <button type="button" class="btn" id="cancelRedeemBtn">Cancel</button>
+      </div>
+    </div>
+
+    <h2 class="grid-title">Choose your little privilege</h2>
+    <div class="grid" id="couponGrid"></div>
+
+    <section class="note">
+      <div class="heart">♡</div>
+      <h2>A Note for Chakuli</h2>
+      <p>This little book is full of excuses to spend time together, eat good food, make memories and annoy each other a little.</p>
+      <p>You don't have to save these coupons for a special occasion. Sometimes the smallest plans become the best memories.</p>
+      <p>Use your privileges wisely (or don't). The best part of every coupon is the time we get to spend together.</p>
+      <p class="signature">Made just for you ♡</p>
+    </section>
+
+    <p class="rules">Each coupon can be redeemed once · No expiry date · Plans should work for both of us · Coupons are invitations, never obligations.</p>
+    <div class="footer">A little book, just for you. ♡</div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // ==================== COUPON DATA ====================
+    const coupons = [
+      ["🍕", "Food Is On Me", "You choose the food. I pay. No debating the menu for 45 minutes.", "FOOD PRIVILEGES"],
+      ["🍦", "Ice Cream Emergency", "Redeem whenever you crave ice cream. No occasion required.", "FOOD PRIVILEGES"],
+      ["🍰", "Your Favourite Dessert", "One dessert of your choice, personally arranged by me.", "FOOD PRIVILEGES"],
+      ["🌮", "Street Food Date", "Pani puri, momos, chaat or whatever you're craving.", "FOOD PRIVILEGES"],
+      ["☕", "Coffee Date", "One coffee date with your favourite company (me, obviously).", "DATE PRIVILEGES"],
+      ["🏍️", "Long Drive Pass", "A drive, your playlist and absolutely no rushing back.", "DATE PRIVILEGES"],
+      ["🎬", "Movie Night", "Your movie, your snacks and my company. Even if it's a three-hour movie.", "DATE PRIVILEGES"],
+      ["🌅", "Sunset Date", "One evening reserved for watching the sunset together.", "DATE PRIVILEGES"],
+      ["🎁", "Surprise Outing", "I'll plan a little outing. Your only job is to show up.", "DATE PRIVILEGES"],
+      ["🫂", "Unlimited Hugs", "As many hugs as you want whenever we're together.", "CUTE PRIVILEGES"],
+      ["💐", "Random Flowers", "A flower surprise on a completely ordinary day.", "CUTE PRIVILEGES"],
+      ["💌", "Handwritten Letter", "One letter, written by hand, just for you.", "CUTE PRIVILEGES"],
+      ["🥰", "Compliment Overload", "A full session of compliments. No pretending you don't like them.", "CUTE PRIVILEGES"],
+      ["🎵", "Your Favourite Song", "A dedicated song and a little moment just for you.", "CUTE PRIVILEGES"],
+      ["👑", "Your Choice Day", "You pick what we do. I won't complain about your choice.", "VIP & MISCHIEF"],
+      ["🏆", "One Free Win", "You win one argument. I'll let you enjoy your victory.", "VIP & MISCHIEF"],
+      ["🍟", "No-Questions Snack Run", "Craving something? I'll do my best to arrange it.", "VIP & MISCHIEF"],
+      ["📸", "Personal Photographer", "One mini photoshoot. Unlimited attempts until you love the pictures.", "VIP & MISCHIEF"],
+      ["📵", "No Phone Date", "One date with phones away and full attention on each other.", "VIP & MISCHIEF"],
+      ["🎀", "Mystery Coupon", "A surprise planned by me. The details remain classified until redemption.", "VIP & MISCHIEF"]
+    ];
+
+    const SECRET_PASSCODE = "1427";
+    const SESSION_UNLOCK_KEY = "chakuli_book_unlocked_1427";
+    const $ = (id) => document.getElementById(id);
+
+    // ==================== STATE ====================
+    let current = 0;
+    // Map of coupon index string ("0".."19") -> { redeemedAt: string, note: string }
+    let redeemedMap = {};
+    let enteredPin = "";
+    let db = null;
+    let auth = null;
+    let sharedDocRef = null;
+    let isFirebaseReady = false;
+
+    // ==================== PASSCODE LOCK LOGIC ====================
+    function updatePinUI(isError = false) {
+      const dots = document.querySelectorAll("#pinDots .pin-dot");
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle("filled", idx < enteredPin.length);
+        dot.classList.toggle("error", isError);
+      });
+    }
+
+    function unlockBook(animate = true) {
+      try {
+        sessionStorage.setItem(SESSION_UNLOCK_KEY, "true");
+      } catch (e) {
+        // Ignore storage restrictions if any
+      }
+      const lockScreen = $("lockScreen");
+      if (!animate) {
+        lockScreen.style.transition = "none";
+      }
+      lockScreen.classList.add("unlocked");
+      if (!animate) {
+        requestAnimationFrame(() => {
+          lockScreen.style.transition = "";
+        });
+      }
+    }
+
+    function lockBook() {
+      try {
+        sessionStorage.removeItem(SESSION_UNLOCK_KEY);
+      } catch (e) {}
+      enteredPin = "";
+      updatePinUI(false);
+      $("lockMsg").textContent = "";
+      $("lockScreen").classList.remove("unlocked");
+    }
+
+    function handleDigit(digit) {
+      if (enteredPin.length >= 4) return;
+      $("lockMsg").textContent = "";
+      enteredPin += digit;
+      updatePinUI(false);
+
+      if (enteredPin.length === 4) {
+        if (enteredPin === SECRET_PASSCODE) {
+          $("lockMsg").textContent = "Welcome ♡";
+          setTimeout(() => unlockBook(true), 220);
+        } else {
+          updatePinUI(true);
+          $("lockMsg").textContent = "Wrong passcode · Try again";
+          const card = $("lockCard");
+          card.classList.remove("shake");
+          void card.offsetWidth; // trigger reflow
+          card.classList.add("shake");
+          setTimeout(() => {
+            enteredPin = "";
+            updatePinUI(false);
+          }, 480);
+        }
+      }
+    }
+
+    // Check if already unlocked in this tab session
+    try {
+      if (sessionStorage.getItem(SESSION_UNLOCK_KEY) === "true") {
+        unlockBook(false);
+      }
+    } catch (e) {}
+
+    $("keypad").addEventListener("click", (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      if (btn.dataset.key !== undefined) {
+        handleDigit(btn.dataset.key);
+      } else if (btn.dataset.action === "clear") {
+        enteredPin = "";
+        $("lockMsg").textContent = "";
+        updatePinUI(false);
+      } else if (btn.dataset.action === "back") {
+        enteredPin = enteredPin.slice(0, -1);
+        $("lockMsg").textContent = "";
+        updatePinUI(false);
+      }
+    });
+
+    // Keyboard support for passcode entry when locked
+    window.addEventListener("keydown", (e) => {
+      const isLocked = !$("lockScreen").classList.contains("unlocked");
+      if (!isLocked) return;
+      if (/^[0-9]$/.test(e.key)) {
+        handleDigit(e.key);
+      } else if (e.key === "Backspace") {
+        enteredPin = enteredPin.slice(0, -1);
+        $("lockMsg").textContent = "";
+        updatePinUI(false);
+      } else if (e.key === "Escape") {
+        enteredPin = "";
+        $("lockMsg").textContent = "";
+        updatePinUI(false);
+      }
+    });
+
+    $("lockBtn").addEventListener("click", lockBook);
+
+    // ==================== HEART CELEBRATION ====================
+    function spawnHeartBurst(originEl) {
+      const rect = originEl.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const symbols = ["♡", "♥", "✿", "✨"];
+
+      for (let i = 0; i < 14; i++) {
+        const el = document.createElement("span");
+        el.className = "burst-heart";
+        el.textContent = symbols[i % symbols.length];
+        const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
+        const dist = 55 + Math.random() * 85;
+        el.style.left = `${centerX}px`;
+        el.style.top = `${centerY}px`;
+        el.style.setProperty("--tx", `${Math.cos(angle) * dist}px`);
+        el.style.setProperty("--ty", `${Math.sin(angle) * dist - 30}px`);
+        el.style.setProperty("--rot", `${(Math.random() - 0.5) * 60}deg`);
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1400);
+      }
+    }
+
+    // ==================== RENDER UI ====================
+    function render() {
+      const c = coupons[current];
+      const entry = redeemedMap[String(current)];
+      const isUsed = Boolean(entry);
+
+      $("number").textContent = `COUPON ${String(current + 1).padStart(2, "0")} · ${c[3]}`;
+      $("emoji").textContent = c[0];
+      $("title").textContent = c[1];
+      $("description").textContent = c[2];
+      $("counter").textContent = `${String(current + 1).padStart(2, "0")} / 20`;
+
+      $("couponCard").classList.toggle("redeemed", isUsed);
+      $("redeemBtn").textContent = isUsed ? "✓ Redeemed" : "♡ Redeem this coupon";
+      $("redeemBtn").disabled = isUsed;
+      $("undoBtn").hidden = !isUsed;
+
+      if (isUsed) {
+        $("redeemDrawer").hidden = true;
+        $("redeemedMeta").hidden = false;
+        $("redeemedDate").textContent = `Redeemed on ${entry.redeemedAt || "a sweet day"}`;
+        if (entry.note && entry.note.trim()) {
+          $("redeemedNoteText").hidden = false;
+          $("redeemedNoteText").textContent = `“${entry.note.trim()}”`;
+        } else {
+          $("redeemedNoteText").hidden = true;
+        }
+      } else {
+        $("redeemedMeta").hidden = true;
+      }
+
+      $("prev").disabled = current === 0;
+      $("next").disabled = current === 19;
+
+      const totalRedeemed = Object.keys(redeemedMap).filter(
+        (k) => Number.isInteger(Number(k)) && Number(k) >= 0 && Number(k) < 20
+      ).length;
+
+      $("redeemedCount").textContent = `${totalRedeemed} / 20 redeemed`;
+      $("progressBar").style.width = `${(totalRedeemed / 20) * 100}%`;
+
+      document.querySelectorAll(".tile").forEach((el, i) => {
+        el.classList.toggle("active", i === current);
+        el.classList.toggle("used", Boolean(redeemedMap[String(i)]));
+      });
+    }
+
+    function buildGrid() {
+      const grid = $("couponGrid");
+      grid.innerHTML = "";
+      coupons.forEach((c, i) => {
+        const b = document.createElement("button");
+        b.className = "tile";
+        b.type = "button";
+        b.innerHTML = `<span>${c[0]}</span><small>${String(i + 1).padStart(2, "0")} · ${c[1]}</small>`;
+        b.addEventListener("click", () => {
+          current = i;
+          $("redeemDrawer").hidden = true;
+          render();
+          $("couponCard").scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+        grid.appendChild(b);
+      });
+    }
+
+    // ==================== CLOUD SYNC (FIREBASE FIRESTORE) ====================
+    function setSyncStatus(state, label) {
+      const pill = $("syncPill");
+      pill.classList.remove("live", "error");
+      if (state === "live") pill.classList.add("live");
+      if (state === "error") pill.classList.add("error");
+      $("syncText").textContent = label;
+    }
+
+    async function persistSharedState() {
+      if (!isFirebaseReady || !sharedDocRef || !auth?.currentUser) return;
+      setSyncStatus("syncing", "Saving...");
+      try {
+        await setDoc(
+          sharedDocRef,
+          {
+            redeemed: redeemedMap,
+            updatedAt: new Date().toISOString()
+          },
+          { merge: true }
+        );
+        setSyncStatus("live", "Synced ♡");
+      } catch (err) {
+        console.error("Error syncing coupon book:", err);
+        setSyncStatus("error", "Sync issue");
+      }
+    }
+
+    async function initSharedCloudBook() {
+      try {
+        if (typeof __firebase_config === "undefined") {
+          setSyncStatus("error", "Offline preview");
+          return;
+        }
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const appId = typeof __app_id !== "undefined" ? __app_id : "chakuli-privilege-book";
+
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (typeof __initial_auth_token !== "undefined" && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        if (!auth.currentUser) return;
+
+        // Shared public path keyed by the shared passcode book ID so both devices read/write the exact same record
+        sharedDocRef = doc(db, "artifacts", appId, "public", "data", "books", "chakuli_1427");
+        isFirebaseReady = true;
+
+        onSnapshot(
+          sharedDocRef,
+          (snap) => {
+            if (snap.exists()) {
+              const data = snap.data();
+              redeemedMap = data && typeof data.redeemed === "object" && data.redeemed !== null ? data.redeemed : {};
+            } else {
+              redeemedMap = {};
+            }
+            setSyncStatus("live", "Synced ♡");
+            render();
+          },
+          (error) => {
+            console.error("Firestore snapshot error:", error);
+            setSyncStatus("error", "Sync paused");
+          }
+        );
+      } catch (err) {
+        console.error("Failed to initialize shared sync:", err);
+        setSyncStatus("error", "Offline mode");
+      }
+    }
+
+    // ==================== INTERACTION HANDLERS ====================
+    $("prev").addEventListener("click", () => {
+      current = Math.max(0, current - 1);
+      $("redeemDrawer").hidden = true;
+      render();
+    });
+
+    $("next").addEventListener("click", () => {
+      current = Math.min(19, current + 1);
+      $("redeemDrawer").hidden = true;
+      render();
+    });
+
+    $("redeemBtn").addEventListener("click", () => {
+      if (redeemedMap[String(current)]) return;
+      $("wishInput").value = "";
+      $("redeemDrawer").hidden = false;
+      $("wishInput").focus();
+    });
+
+    $("cancelRedeemBtn").addEventListener("click", () => {
+      $("redeemDrawer").hidden = true;
+    });
+
+    $("confirmRedeemBtn").addEventListener("click", async () => {
+      const now = new Date();
+      const formattedDate = now.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+      const note = $("wishInput").value.trim();
+
+      redeemedMap[String(current)] = {
+        redeemedAt: formattedDate,
+        note
+      };
+
+      $("redeemDrawer").hidden = true;
+      spawnHeartBurst($("couponCard"));
+      render();
+      await persistSharedState();
+    });
+
+    $("wishInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        $("confirmRedeemBtn").click();
+      }
+    });
+
+    $("undoBtn").addEventListener("click", async () => {
+      delete redeemedMap[String(current)];
+      render();
+      await persistSharedState();
+    });
+
+    // Boot
+    buildGrid();
+    render();
+    initSharedCloudBook();
+  </script>
+</body>
+</html>
